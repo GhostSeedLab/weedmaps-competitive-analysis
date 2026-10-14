@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cannabis Tech Platform Comparison</title>
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-card: #222533;
+            --bg-hover: #2a2e3f;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0b0;
+            --text-muted: #6b7185;
+            --accent-green: #00c853;
+            --accent-green-dim: rgba(0, 200, 83, 0.15);
+            --accent-amber: #ffab00;
+            --accent-amber-dim: rgba(255, 171, 0, 0.15);
+            --accent-red: #ff5252;
+            --accent-blue: #448aff;
+            --accent-purple: #7c4dff;
+            --border-color: #2e3247;
+            --border-light: #3a3f55;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .legend-icon.core {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .legend-icon.partial {
+            background: var(--accent-amber-dim);
+            color: var(--accent-amber);
+        }
+
+        .legend-icon.none {
+            background: rgba(107, 113, 133, 0.15);
+            color: var(--text-muted);
+        }
+
+        /* Filter controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-green-dim);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        /* Matrix table */
+        .matrix-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            margin-bottom: 3rem;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        .matrix-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .matrix-table th {
+            background: var(--bg-card);
+            padding: 0.875rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .matrix-table th:first-child {
+            text-align: left;
+            min-width: 180px;
+            position: sticky;
+            left: 0;
+            z-index: 11;
+        }
+
+        .matrix-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+
+        .matrix-table td:first-child {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: var(--bg-secondary);
+            z-index: 5;
+        }
+
+        .matrix-table tbody tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .matrix-table tbody tr:hover td:first-child {
+            background: var(--bg-hover);
+        }
+
+        .matrix-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .company-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .company-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .company-info h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .company-info .type-tag {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Feature indicators */
+        .feature-check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .feature-check.core {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .feature-check.partial {
+            background: var(--accent-amber-dim);
+            color: var(--accent-amber);
+        }
+
+        .feature-check.none {
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        /* Company detail cards */
+        .details-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .company-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .company-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .company-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card-header .founded {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.65;
+            margin-bottom: 1rem;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .card-tag {
+            padding: 0.25rem 0.6rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .card-tag.primary {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Tooltip */
+        .tooltip-wrapper {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-wrapper .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: opacity 0.2s;
+            z-index: 100;
+            font-weight: 400;
+        }
+
+        .tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Category headers in table */
+        .category-header {
+            font-size: 0.65rem;
+            display: block;
+            color: var(--text-muted);
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-top: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .company-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                gap: 1rem;
+            }
+
+            .controls {
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cannabis Tech Platform Comparison</h1>
+            <p>A comprehensive competitive analysis matrix of platforms providing services similar to Weedmaps across the cannabis technology ecosystem.</p>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon core">&#10003;</div>
+                <span>Core Feature</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon partial">~</div>
+                <span>Partial / Via Integration</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon none">&mdash;</div>
+                <span>Not Offered</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="filter-btn active" data-filter="all">All Platforms</button>
+            <button class="filter-btn" data-filter="marketplace">Marketplace</button>
+            <button class="filter-btn" data-filter="pos">POS / Retail</button>
+            <button class="filter-btn" data-filter="ecommerce">E-Commerce</button>
+            <button class="filter-btn" data-filter="delivery">Delivery</button>
+        </div>
+
+        <div class="matrix-wrapper">
+            <table class="matrix-table" id="comparisonMatrix">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>
+                            Marketplace
+                            <span class="category-header">Consumer Discovery</span>
+                        </th>
+                        <th>
+                            Online Ordering
+                            <span class="category-header">E-Commerce</span>
+                        </th>
+                        <th>
+                            Point of Sale
+                            <span class="category-header">POS System</span>
+                        </th>
+                        <th>
+                            Delivery Mgmt
+                            <span class="category-header">Logistics</span>
+                        </th>
+                        <th>
+                            Compliance
+                            <span class="category-header">Reporting</span>
+                        </th>
+                        <th>
+                            Menu Mgmt
+                            <span class="category-header">Inventory</span>
+                        </th>
+                        <th>
+                            Analytics
+                            <span class="category-header">Data & Insights</span>
+                        </th>
+                        <th>
+                            Ads & Marketing
+                            <span class="category-header">Brand Promo</span>
+                        </th>
+                        <th>
+                            Retail Focus
+                            <span class="category-header">Dispensary</span>
+                        </th>
+                        <th>
+                            Brand Focus
+                            <span class="category-header">Mfg / Distro</span>
+                        </th>
+                        <th>
+                            Payments
+                            <span class="category-header">Processing</span>
+                        </th>
+                        <th>
+                            CRM
+                            <span class="category-header">Loyalty</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="matrixBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="details-section">
+            <h2>Platform Profiles</h2>
+            <div class="company-cards" id="companyCards">
+            </div>
+        </div>
+
+        <footer>
+            <p>Data compiled for competitive analysis purposes. Feature availability may have changed since last update.</p>
+            <p style="margin-top: 0.5rem;">Built by <a href="https://github.com/GhostSeedLab" target="_blank">GhostSeedLab</a> &middot; Last updated October 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        const companies = [
+            {
+                name: "Weedmaps",
+                abbr: "WM",
+                color: "#00c853",
+                type: "Marketplace & SaaS",
+                categories: ["marketplace", "ecommerce"],
+                founded: "2008",
+                hq: "Irvine, CA",
+                description: "The largest cannabis marketplace connecting consumers with dispensaries, delivery services, and brands. Offers WM Business suite with listing management, online ordering, advertising solutions, and analytics for dispensaries and brands.",
+                tags: ["Marketplace Leader", "Advertising Platform", "Consumer Discovery", "Order Ahead"],
+                features: {
+                    marketplace: "core",
+                    ordering: "core",
+                    pos: "none",
+                    delivery: "partial",
+                    compliance: "partial",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "core",
+                    retail: "core",
+                    brand: "core",
+                    payments: "partial",
+                    crm: "partial"
+                }
+            },
+            {
+                name: "Leafly",
+                abbr: "LF",
+                color: "#48b04b",
+                type: "Marketplace & Content",
+                categories: ["marketplace", "ecommerce"],
+                founded: "2010",
+                hq: "Seattle, WA",
+                description: "Cannabis marketplace known for its extensive strain database, editorial content, and consumer reviews. Offers dispensary listings, online ordering, and advertising solutions for retailers and brands.",
+                tags: ["Strain Database", "Cannabis Content", "Reviews", "Online Ordering"],
+                features: {
+                    marketplace: "core",
+                    ordering: "core",
+                    pos: "none",
+                    delivery: "partial",
+                    compliance: "partial",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "core",
+                    retail: "core",
+                    brand: "core",
+                    payments: "none",
+                    crm: "partial"
+                }
+            },
+            {
+                name: "Dutchie",
+                abbr: "DU",
+                color: "#7c4dff",
+                type: "E-Commerce & POS",
+                categories: ["ecommerce", "pos"],
+                founded: "2017",
+                hq: "Bend, OR",
+                description: "All-in-one cannabis commerce platform offering POS (via Greenbits acquisition), e-commerce, payments, and integrated menus. Powers online ordering for thousands of dispensaries with embedded and standalone storefronts.",
+                tags: ["Full-Stack Commerce", "POS (Greenbits)", "Embedded Menus", "Payments"],
+                features: {
+                    marketplace: "partial",
+                    ordering: "core",
+                    pos: "core",
+                    delivery: "core",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "partial",
+                    retail: "core",
+                    brand: "partial",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Jane Technologies",
+                abbr: "JT",
+                color: "#448aff",
+                type: "E-Commerce & Marketplace",
+                categories: ["ecommerce", "marketplace"],
+                founded: "2017",
+                hq: "Santa Cruz, CA",
+                description: "Cannabis e-commerce and digital marketplace platform. Provides white-label online ordering, menu management, and a consumer-facing marketplace (iheartjane.com). Focuses on data-driven product discovery and brand advertising.",
+                tags: ["White-Label Ordering", "Product Discovery", "Brand Ads", "Data Platform"],
+                features: {
+                    marketplace: "core",
+                    ordering: "core",
+                    pos: "none",
+                    delivery: "partial",
+                    compliance: "partial",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "core",
+                    retail: "core",
+                    brand: "core",
+                    payments: "partial",
+                    crm: "partial"
+                }
+            },
+            {
+                name: "Meadow",
+                abbr: "MW",
+                color: "#26a69a",
+                type: "POS & Compliance",
+                categories: ["pos", "delivery"],
+                founded: "2014",
+                hq: "San Francisco, CA",
+                description: "Cannabis dispensary management platform offering POS, delivery logistics, and METRC-integrated compliance tools. Known for strong California market presence and delivery fleet management capabilities.",
+                tags: ["POS System", "Delivery Logistics", "METRC Integration", "CA Focus"],
+                features: {
+                    marketplace: "none",
+                    ordering: "core",
+                    pos: "core",
+                    delivery: "core",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Treez",
+                abbr: "TZ",
+                color: "#ff6e40",
+                type: "POS & Commerce",
+                categories: ["pos", "ecommerce"],
+                founded: "2016",
+                hq: "Oakland, CA",
+                description: "Enterprise-grade cannabis commerce platform offering POS, inventory management, e-commerce, payments, and analytics. Known for robust API integrations and scalable solutions for multi-location operators.",
+                tags: ["Enterprise POS", "API Platform", "Multi-Location", "Inventory Mgmt"],
+                features: {
+                    marketplace: "none",
+                    ordering: "core",
+                    pos: "core",
+                    delivery: "partial",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Flowhub",
+                abbr: "FH",
+                color: "#ff4081",
+                type: "POS & Compliance",
+                categories: ["pos"],
+                founded: "2015",
+                hq: "Denver, CO",
+                description: "Cannabis dispensary POS and management platform focused on compliance automation, inventory tracking, and customer management. Strong presence in Colorado and expanding markets. Features Nug loyalty program integration.",
+                tags: ["POS System", "Compliance Automation", "Inventory", "Nug Loyalty"],
+                features: {
+                    marketplace: "none",
+                    ordering: "partial",
+                    pos: "core",
+                    delivery: "partial",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Blaze",
+                abbr: "BZ",
+                color: "#ff9100",
+                type: "POS & Delivery",
+                categories: ["pos", "delivery"],
+                founded: "2017",
+                hq: "Santa Monica, CA",
+                description: "Cannabis dispensary POS and delivery management platform. Offers comprehensive retail operations suite including inventory management, compliance reporting, delivery logistics, and customer loyalty tools.",
+                tags: ["POS System", "Delivery Mgmt", "Loyalty Program", "Retail Operations"],
+                features: {
+                    marketplace: "none",
+                    ordering: "core",
+                    pos: "core",
+                    delivery: "core",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Dispense",
+                abbr: "DI",
+                color: "#64b5f6",
+                type: "E-Commerce & Menu",
+                categories: ["ecommerce"],
+                founded: "2018",
+                hq: "Toronto, ON",
+                description: "Cannabis e-commerce platform specializing in online menus and ordering solutions for dispensaries. Offers customizable embedded menus, SEO-optimized storefronts, and age-gated ordering systems for the Canadian and US markets.",
+                tags: ["E-Commerce", "Embedded Menus", "SEO Optimized", "US & Canada"],
+                features: {
+                    marketplace: "none",
+                    ordering: "core",
+                    pos: "none",
+                    delivery: "partial",
+                    compliance: "partial",
+                    menu: "core",
+                    analytics: "partial",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "partial",
+                    crm: "partial"
+                }
+            },
+            {
+                name: "Cova",
+                abbr: "CV",
+                color: "#ab47bc",
+                type: "POS & Compliance",
+                categories: ["pos"],
+                founded: "2018",
+                hq: "Denver, CO",
+                description: "Cannabis POS platform with strong compliance focus. Provides inventory management, integrated compliance reporting, customer management, and e-commerce capabilities. Notable presence in both US and Canadian markets.",
+                tags: ["POS System", "Compliance Focus", "US & Canada", "Inventory"],
+                features: {
+                    marketplace: "none",
+                    ordering: "partial",
+                    pos: "core",
+                    delivery: "none",
+                    compliance: "core",
+                    menu: "core",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "core",
+                    brand: "none",
+                    payments: "core",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Springbig",
+                abbr: "SB",
+                color: "#29b6f6",
+                type: "Marketing & CRM",
+                categories: ["ecommerce"],
+                founded: "2017",
+                hq: "Boca Raton, FL",
+                description: "Cannabis-focused CRM and marketing automation platform. Specializes in loyalty programs, SMS/email marketing, customer segmentation, and digital communications for dispensaries. Publicly traded (SBIG).",
+                tags: ["CRM Platform", "Loyalty Programs", "SMS Marketing", "Publicly Traded"],
+                features: {
+                    marketplace: "none",
+                    ordering: "partial",
+                    pos: "none",
+                    delivery: "none",
+                    compliance: "partial",
+                    menu: "none",
+                    analytics: "core",
+                    ads: "core",
+                    retail: "core",
+                    brand: "partial",
+                    payments: "none",
+                    crm: "core"
+                }
+            },
+            {
+                name: "Onfleet",
+                abbr: "OF",
+                color: "#66bb6a",
+                type: "Delivery Logistics",
+                categories: ["delivery"],
+                founded: "2012",
+                hq: "San Francisco, CA",
+                description: "Last-mile delivery management platform widely adopted by cannabis delivery operators. Offers route optimization, real-time tracking, driver management, proof of delivery, and analytics. Not cannabis-specific but a major player in the space.",
+                tags: ["Delivery Platform", "Route Optimization", "Driver Mgmt", "Multi-Industry"],
+                features: {
+                    marketplace: "none",
+                    ordering: "none",
+                    pos: "none",
+                    delivery: "core",
+                    compliance: "none",
+                    menu: "none",
+                    analytics: "core",
+                    ads: "none",
+                    retail: "partial",
+                    brand: "none",
+                    payments: "none",
+                    crm: "none"
+                }
+            },
+            {
+                name: "Buddi",
+                abbr: "BD",
+                color: "#ef5350",
+                type: "Delivery & Marketplace",
+                categories: ["delivery", "marketplace"],
+                founded: "2019",
+                hq: "Los Angeles, CA",
+                description: "Cannabis delivery marketplace connecting consumers with licensed delivery services. Focuses on the on-demand delivery experience with real-time tracking, consumer reviews, and curated product selections.",
+                tags: ["Delivery Marketplace", "On-Demand", "Consumer App", "LA Market"],
+                features: {
+                    marketplace: "core",
+                    ordering: "core",
+                    pos: "none",
+                    delivery: "core",
+                    compliance: "partial",
+                    menu: "core",
+                    analytics: "partial",
+                    ads: "partial",
+                    retail: "partial",
+                    brand: "partial",
+                    payments: "core",
+                    crm: "none"
+                }
+            }
+        ];
+
+        const featureKeys = [
+            'marketplace', 'ordering', 'pos', 'delivery', 'compliance',
+            'menu', 'analytics', 'ads', 'retail', 'brand', 'payments', 'crm'
+        ];
+
+        function getFeatureIcon(level) {
+            switch (level) {
+                case 'core':
+                    return '<span class="feature-check core">&#10003;</span>';
+                case 'partial':
+                    return '<span class="feature-check partial">~</span>';
+                default:
+                    return '<span class="feature-check none">&mdash;</span>';
+            }
+        }
+
+        function getTooltip(company, feature) {
+            const labels = {
+                marketplace: 'Consumer Marketplace',
+                ordering: 'Online Ordering',
+                pos: 'Point of Sale',
+                delivery: 'Delivery Management',
+                compliance: 'Compliance & Reporting',
+                menu: 'Menu Management',
+                analytics: 'Analytics & Insights',
+                ads: 'Advertising & Marketing',
+                retail: 'Retail / Dispensary Focus',
+                brand: 'Brand / Manufacturer Focus',
+                payments: 'Payment Processing',
+                crm: 'CRM & Loyalty'
+            };
+            const status = company.features[feature];
+            const statusLabel = status === 'core' ? 'Core Feature' : status === 'partial' ? 'Partial / Via Integration' : 'Not Offered';
+            return `${company.name}: ${labels[feature]} - ${statusLabel}`;
+        }
+
+        function renderMatrix(filter) {
+            const tbody = document.getElementById('matrixBody');
+            tbody.innerHTML = '';
+
+            const filtered = filter === 'all'
+                ? companies
+                : companies.filter(c => c.categories.includes(filter));
+
+            filtered.forEach(company => {
+                const row = document.createElement('tr');
+                row.dataset.categories = company.categories.join(',');
+
+                let cells = `
+                    <td>
+                        <div class="company-cell">
+                            <div class="company-logo" style="background: ${company.color}22; color: ${company.color}">
+                                ${company.abbr}
+                            </div>
+                            <div class="company-info">
+                                <h3>${company.name}</h3>
+                                <span class="type-tag">${company.type}</span>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                featureKeys.forEach(key => {
+                    const tip = getTooltip(company, key);
+                    cells += `
+                        <td>
+                            <div class="tooltip-wrapper">
+                                ${getFeatureIcon(company.features[key])}
+                                <span class="tooltip-text">${tip}</span>
+                            </div>
+                        </td>
+                    `;
+                });
+
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderCards() {
+            const container = document.getElementById('companyCards');
+            container.innerHTML = '';
+
+            companies.forEach(company => {
+                const card = document.createElement('div');
+                card.className = 'company-card';
+
+                const tagsHtml = company.tags.map((tag, i) =>
+                    `<span class="card-tag${i === 0 ? ' primary' : ''}">${tag}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-logo" style="background: ${company.color}22; color: ${company.color}">
+                            ${company.abbr}
+                        </div>
+                        <div>
+                            <h3>${company.name}</h3>
+                            <span class="founded">Founded ${company.founded} &middot; ${company.hq}</span>
+                        </div>
+                    </div>
+                    <p class="card-description">${company.description}</p>
+                    <div class="card-tags">${tagsHtml}</div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderMatrix(btn.dataset.filter);
+            });
+        });
+
+        // Initial render
+        renderMatrix('all');
+        renderCards();
+    </script>
+</body>
+</html>
